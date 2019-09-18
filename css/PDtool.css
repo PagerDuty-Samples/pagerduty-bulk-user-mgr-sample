@@ -1,0 +1,66 @@
+body {
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, sans-serif;
+	font-size: small;
+    padding-top: 70px;
+}
+
+.detail {
+	display: none;
+}
+
+.busy {
+	display: none;
+	position: fixed;
+	background-color: #888;
+	opacity: 0.8;
+	top: 0; right: 0; bottom: 0; left: 0;
+	z-index: 10;
+}
+
+.busy .spinner {
+	width: 100px;
+	height: 100px;
+	opacity: 1.0;
+	top: 0; right: 0; bottom: 0; left: 0;
+	position: absolute;
+	margin: auto;
+}
+
+.busy .progress {
+	width: 200px;
+	height: 20px;
+	opacity: 1.0;
+	top: auto; right: 0; bottom: 60px; left: 0;
+	position: fixed;
+	margin: auto;
+}
+
+#pd-auth-button-container {
+	display: flex;
+	justify-content: center;
+	width: 100%;
+}
+#pd-auth-button {
+	background-color: #4CAF50; /* Green */
+	border: none;
+	color: white;
+	padding: 15px 32px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	border-radius: 3px;
+	font-weight: bold;
+}
+
+#user-wrapper {
+	display: flex;
+	align-items: stretch;
+}
+  
+#bio {
+	margin-left: 10px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}

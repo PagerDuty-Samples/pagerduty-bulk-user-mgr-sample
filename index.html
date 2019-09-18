@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+	    <meta charset="utf-8">
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>PagerDuty Tool</title>
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-jsonview/1.2.3/jquery.jsonview.min.css" rel="stylesheet">
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/css/jquery.dataTables.min.css" rel="stylesheet">
+		<link href="https://cdn.datatables.net/buttons/1.2.2/css/buttons.dataTables.min.css" rel="stylesheet">
+		<link href="https://cdn.datatables.net/select/1.2.1/css/select.dataTables.min.css" rel="stylesheet">
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+		<link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/css/bootstrap-select.min.css" rel="stylesheet">
+		<link href="css/PDtool.css" rel="stylesheet">
+	</head>
+	<body>
+	    <nav class="navbar navbar-default navbar-fixed-top">
+	      <div class="container-fluid">
+	        <div class="navbar-header">
+	          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+	            <span class="sr-only">Toggle navigation</span>
+	            <span class="icon-bar"></span>
+	            <span class="icon-bar"></span>
+	            <span class="icon-bar"></span>
+	          </button>
+	          <a class="navbar-brand" href="#">PD Bulk User Management Tool</a>
+	        </div>
+	
+	        <div id="navbar" class="navbar-collapse collapse">
+	          <ul class="nav navbar-nav">
+	            <li><a class="tab" id="auth-button" href="#">Authentication</a></li>
+	            <li role="presentation" class="dropdown">
+	            	<a class="tab" class="dropdown-toggle" data-toggle="dropdown" 
+		            	aria-haspopup="true" aria-expanded="false" id="users-dropdown" href="#">Users
+		            	<span class="caret"></span>
+		            </a>
+	            	<ul class="dropdown-menu">
+		            	<li><a id="users-export-button" href="#">Export Users</a></li>
+		            	<li><a id="users-import-button" href="#">Import Users</a></li>
+		            	<li><a id="users-edit-button" href="#">Quick Edit Users</a></li>
+	            	</ul>
+	            </li>
+	          </ul>
+	          <ul class="nav navbar-nav navbar-right">
+	          </ul>
+	        </div><!--/.nav-collapse -->
+	      </div>
+	    </nav>
+
+		<div id="content" class="container-fluid">
+			<div class="detail" id="auth">
+				<h2 style="text-align: center;">Authentication</h2>
+				<div id="pd-auth-button-container">
+					<a id="pd-auth-button">
+						Authorize PagerDuty
+					</a>
+				</div>
+			</div>
+			<div class="detail" id="index">
+				<h2>Welcome!</h2>
+				<p id="welcome"></p>
+			</div>
+			<div class="detail" id="integrations">
+				<h2>View Integrations</h2>
+				Service: <select class="selectpicker" id="integrations-service-select"></select>
+				Integration: <select class="selectpicker" id="integrations-integration-select"></select>
+				<div class="result" id="integrations-result"></div>
+			</div>
+			<div class="detail" id="trigger">
+				<h2>Send Events</h2>
+				Send a <select class="selectpicker" id="trigger-event-select"></select>
+				event to: <select class="selectpicker" id="trigger-dest-select"></select>
+				<button class="btn btn-default" id="trigger-send-button">Send</button>
+				<div class="result" id="trigger-result"></div>
+			</div>
+			<div class="detail" id="incidents">
+				<h2>Open Incidents</h2>
+				<div class="result" id="incidents-result"></div>
+			</div>
+			<div class="detail" id="users-export">
+				<h2>Export Users</h2>
+				<div class="result" id="users-export-result"></div>
+			</div>
+			<div class="detail" id="users-import">
+				<h2>Import Users</h2>
+					<h4>Choose a CSV file to import: <input type="file" id="csv-file-input" style="display: inline;" accept="text/csv"></h4>
+					Required column headers: <b>name, email</b>; optional column headers: <b>time_zone, color, role, job_title, avatar_url, description</b><br>
+				<div class="result" id="users-import-result"></div>
+			</div>
+			<div class="detail" id="users-edit">
+				<h2>Quick Edit Users</h2>
+				<h4>Just click on a field and type. Hit Enter to accept or Esc to cancel.</h4>
+				<div class="result" id="users-edit-result"></div>
+			</div>
+			<div class="detail" id="addons">
+				<h2>View Addons</h2>
+				<div class="result" id="addons-result"></div>
+			</div>
+			<div class="detail" id="addons-add">
+				<h2>Install an Addon</h2>
+				<table class="table">
+					<tr>
+						<td align="right">Name:</td><td><input type="text" size="50" id="addons-name"></td>
+					</tr>
+					<tr>
+						<td align="right">Type:</td><td>
+							<select class="selectpicker" id="addons-type">
+								<option value="full_page_addon">Full Page Addon</option>
+								<option value="incident_show_addon">Incident Show Addon</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td align="right">URL:</td><td><input type="text" size="50" id="addons-url"></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td>
+							<button class="btn btn-sm" id="addons-install-button">Install</button>
+						</td>
+					</tr>
+				</table>
+				<div class="result" id="addons-add-result"></div>
+			</div>
+	
+		</div>
+		<div id="busy" style="display:none;">
+			<img class="spinner" src="img/spinner.gif">
+			<div class="progress">
+				<div id="progressbar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+					0%
+				</div>
+			</div>
+		</div>
+
+
+		<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+		<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-jsonview/1.2.3/jquery.jsonview.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/async/2.1.2/async.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" 
+				integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/js/bootstrap-select.min.js"></script>
+		<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+		<script src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
+		<script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js"></script>
+		<script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.flash.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+		<script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js"></script>
+		<script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
+		<script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.print.min.js"></script>
+		<script src="https://cdn.datatables.net/select/1.2.1/js/dataTables.select.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.2/papaparse.js"></script>
+		<script src="js/jquery.tabledit.js"></script>
+		<script src="js/pdjs.js"></script>
+		<!-- <script src="PDtool-events.js"></script> -->
+		<script src="js/auth.js"></script>
+		<script src="js/pagerduty-bulk-user-mgr.js"></script>
+	</body>
+</html>
