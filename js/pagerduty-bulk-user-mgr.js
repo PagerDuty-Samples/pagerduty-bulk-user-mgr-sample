@@ -62,10 +62,7 @@ const initPDJS = function() {
 }
 // pole for pd-token
 const authCheckingPoll = function() {
-    console.log("authCheckingPoll");
-
     let checking = window.setInterval(function() {
-        console.log("interval");
         if (localStorage.getItem("pd-token")) {
             loadPage();
             initLogoutButton();
@@ -185,12 +182,10 @@ document.getElementById('csv-file-input').onchange = function() {
         $('#users-import-result-table').DataTable().clear().destroy();
         $('#users-import-result-table').empty(); 
     }
-    console.log(`#users-import-result-table: ${JSON.stringify($('#users-import-result-table'))}`);
 
     Papa.parse(this.files[0], {
         header: true,
         complete: function(results) {
-            console.log({results});
             let users = [];
             let tableColumnNames = [];
             let tableColumnObjects = [];
@@ -212,7 +207,6 @@ document.getElementById('csv-file-input').onchange = function() {
                 }
                 users.push(user);
             });
-            console.log(users);
             $('#users-import-result').append($('<table/>', {
                 id: "users-import-result-table"
             }));

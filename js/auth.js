@@ -98,11 +98,8 @@ if (urlParams.get('code')) {
 
         return base64EncArr(new Uint8Array(buffer));
     }
-    function gooberPile() {
-        console.log('gooberPile');
-    }
+
     async function auth() {
-        console.log("auth getting called!");
         const generatedCode = gen128x8bitNonce();
         // base64 encode verifier here
         let codeVerifier = base64Unicode(generatedCode.buffer);
@@ -119,7 +116,7 @@ if (urlParams.get('code')) {
             .replace(/\//g, '_')
             .replace(/=/g, '');         
         const authUrl = `https://app.pagerduty.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=code&code_challenge=${encodeURI(challenge)}&code_challenge_method=S256`;
-        console.log(authUrl);
+
         document.getElementById("pd-auth-button").href = authUrl;
     }
     auth();
