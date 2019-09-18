@@ -1,6 +1,6 @@
 const urlParams = new URLSearchParams(window.location.search);
-const redirectUrl = `https://3ff80018.ngrok.io/`;
-const clientId = `3f4529d0be569516b17d4a60364c02ffd67f4a7857f0d4001c79c37f7950287c`;
+const redirectUrl = `https://pagerduty.github.io/pagerduty-bulk-user-mgr-sample/`;
+const clientId = `37e14ac7da1930c2612f9b41ee69eea40087e317f020eb2b9336f4843c59927e`;
 let PDJS = {};
 
 if (urlParams.get('code')) {
