@@ -65,7 +65,8 @@ const authCheckingPoll = function() {
     let checking = window.setInterval(function() {
         if (localStorage.getItem("pd-token")) {
             loadPage();
-            initLogoutButton();
+			initLogoutButton();
+			window.history.replaceState({}, document.title, window.location.pathname);
             clearInterval(checking);
         }
     }, 500);

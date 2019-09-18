@@ -14,7 +14,6 @@ if (urlParams.get('code')) {
                     tokenType: data.token_type,
                     logging: true
                 });
-                window.history.replaceState({}, document.title, "/");
             } else {
                 document.write(error.error_description);
             }
