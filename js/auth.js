@@ -40,11 +40,11 @@ if (urlParams.get('code')) {
         return hash;
     }
 
-    function btoaUTF16 (sString) {
-        const aUTF16CodeUnits = new Uint16Array(sString.length);
-        Array.prototype.forEach.call(aUTF16CodeUnits, function (el, idx, arr) { arr[idx] = sString.charCodeAt(idx); });
-        return btoa(String.fromCharCode.apply(null, new Uint8Array(aUTF16CodeUnits.buffer)));
-    }
+    // function btoaUTF16 (sString) {
+    //     const aUTF16CodeUnits = new Uint16Array(sString.length);
+    //     Array.prototype.forEach.call(aUTF16CodeUnits, function (el, idx, arr) { arr[idx] = sString.charCodeAt(idx); });
+    //     return btoa(String.fromCharCode.apply(null, new Uint8Array(aUTF16CodeUnits.buffer)));
+    // }
 
     const base64Unicode = function(buffer) {
         /*\
@@ -94,26 +94,26 @@ if (urlParams.get('code')) {
                 sB64Enc :
                 sB64Enc.substring(0, sB64Enc.length - eqLen) + (eqLen === 1 ? "=" : "==");
         };
-
-        return base64EncArr(new Uint8Array(buffer));
+        let encodedArr =  base64EncArr(new Uint8Array(buffer));
+        // manually finishing up the url encoding fo the encodedArr
+        encodedArr = encodedArr.replace(/\+/g, '-')
+                    .replace(/\//g, '_')
+                    .replace(/=/g, '');
+        return encodedArr;
     }
 
     async function auth() {
+        // generate code verifier
         const generatedCode = gen128x8bitNonce();
-        // base64 encode verifier here
-        let codeVerifier = base64Unicode(generatedCode.buffer);
-        codeVerifier = codeVerifier.replace(/\+/g, '-')
-                    .replace(/\//g, '_')
-                    .replace(/=/g, '');
-                    
+        // base64 encode code_verifier
+        const codeVerifier = base64Unicode(generatedCode.buffer);        
         // save code_verifier
         sessionStorage.setItem('code_verifier', codeVerifier);
+        // generate the challenge from the code verifier
         const challengeBuffer =  await digestVerifier(codeVerifier);
-        let challenge = base64Unicode(challengeBuffer);
-            
-        challenge = challenge.replace(/\+/g, '-')
-            .replace(/\//g, '_')
-            .replace(/=/g, '');         
+        // base64 encode the challenge
+        const challenge = base64Unicode(challengeBuffer);        
+        // build authUrl
         const authUrl = `https://app.pagerduty.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=code&code_challenge=${encodeURI(challenge)}&code_challenge_method=S256`;
 
         document.getElementById("pd-auth-button").href = authUrl;
