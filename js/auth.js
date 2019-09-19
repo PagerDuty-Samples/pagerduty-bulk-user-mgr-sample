@@ -40,12 +40,6 @@ if (urlParams.get('code')) {
         return hash;
     }
 
-    // function btoaUTF16 (sString) {
-    //     const aUTF16CodeUnits = new Uint16Array(sString.length);
-    //     Array.prototype.forEach.call(aUTF16CodeUnits, function (el, idx, arr) { arr[idx] = sString.charCodeAt(idx); });
-    //     return btoa(String.fromCharCode.apply(null, new Uint8Array(aUTF16CodeUnits.buffer)));
-    // }
-
     const base64Unicode = function(buffer) {
         /*\
         |*|
