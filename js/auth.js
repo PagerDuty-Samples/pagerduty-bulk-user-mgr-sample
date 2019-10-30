@@ -27,7 +27,7 @@ if (urlParams.get('code')) {
         .then(response => response.json()); // parses JSON response into native JavaScript objects 
     }
 } else {
-    const gen128x8bitNonce = function() {
+    function gen128x8bitNonce() {
         const array = new Uint8Array(128); //( generate 1024bits 8*128
         window.crypto.getRandomValues(array);
         return array;
@@ -40,7 +40,7 @@ if (urlParams.get('code')) {
         return hash;
     }
 
-    const base64Unicode = function(buffer) {
+    function base64Unicode(buffer) {
         /*\
         |*|
         |*|  Base64 / binary data / UTF-8 strings utilities (#1)
