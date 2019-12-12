@@ -1,11 +1,15 @@
 const urlParams = new URLSearchParams(window.location.search);
-const redirectUrl = `https://pagerduty.github.io/pagerduty-bulk-user-mgr-sample/`;
-const clientId = `37e14ac7da1930c2612f9b41ee69eea40087e317f020eb2b9336f4843c59927e`;
 let PDJS = {};
 
 if (urlParams.get('code')) {
     // post to /token to request token
-    postData(`https://app.pagerduty.com/oauth/token?grant_type=authorization_code&code=${urlParams.get('code')}&redirect_uri=${redirectUrl}&client_id=${clientId}&code_verifier=${sessionStorage.getItem('code_verifier')}`, {})
+    let requestTokenUrl = `https://app.pagerduty.com/oauth/token?` + 
+                            `grant_type=authorization_code&` + 
+                            `code=${urlParams.get('code')}&` +
+                            `redirect_uri=${APP_CONFIG.redirectUrl}&` + 
+                            `client_id=${APP_CONFIG.clientId}&` + 
+                            `code_verifier=${sessionStorage.getItem('code_verifier')}`;
+    postData(requestTokenUrl, {})
         .then(data => {
             if (data.access_token) {
                 localStorage.setItem("pd-token", (JSON.stringify(data)));
@@ -50,7 +54,6 @@ if (urlParams.get('code')) {
         |*|  Author: madmurphy
         |*|
         \*/
-
         const uint6ToB64 = function(nUint6) {
 
             return nUint6 < 26 ?
@@ -95,7 +98,7 @@ if (urlParams.get('code')) {
                     .replace(/=/g, '');
         return encodedArr;
     }
-
+    
     async function auth() {
         // generate code verifier
         const generatedCode = gen128x8bitNonce();
@@ -108,7 +111,12 @@ if (urlParams.get('code')) {
         // base64 encode the challenge
         const challenge = base64Unicode(challengeBuffer);        
         // build authUrl
-        const authUrl = `https://app.pagerduty.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=code&code_challenge=${encodeURI(challenge)}&code_challenge_method=S256`;
+        const authUrl = `https://app.pagerduty.com/oauth/authorize?` +
+                            `client_id=${APP_CONFIG.clientId}&` +
+                            `redirect_uri=${APP_CONFIG.redirectUrl}&` + 
+                            `response_type=code&` +
+                            `code_challenge=${encodeURI(challenge)}&` + 
+                            `code_challenge_method=S256`;
 
         document.getElementById("pd-auth-button").href = authUrl;
     }
