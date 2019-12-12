@@ -1,6 +1,6 @@
 # PagerDuty Bulk User Management Tool
 
-This is a standalone tool, suitable for use as a PD add-on to import, export and edit users. The code for this project showcases [PKCE OAuth]() as well as the [users](https://api-reference.pagerduty.com/#!/Users/get_users) endpoint of the PagerDuty API.
+This is a standalone tool, suitable for use as a PD add-on to import, export and edit users. The code for this project showcases [PKCE OAuth](https://v2.developer.pagerduty.com/docs/oauth-2-functionality) as well as the [users](https://api-reference.pagerduty.com/#!/Users/get_users) endpoint of the PagerDuty API.
 
 ## How to use
 A live version of the tool is running [here](https://pagerduty.github.io/pagerduty-bulk-user-mgr-sample/).
@@ -28,7 +28,6 @@ function gen128x8bitNonce() {
 const generatedCode = gen128x8bitNonce();
 ```
 
-*Encode Verifier and then save it*
 
 The standard calls for the `generatedCode` to be `base64Unicode` encoded. So, this is done before saving it to the browser's `sessionStorage` as `code_verifier`.
 
@@ -38,8 +37,6 @@ const codeVerifier = base64Unicode(generatedCode.buffer);
 // save code_verifier
 sessionStorage.setItem('code_verifier', codeVerifier);
 ```
-
-*create challengeBuffer*
 
 Using the value for `code_verifier` the next step is to create a `code_challenge`. This is created by hashing `code_verifier` with the following code, and then  passing that value to `base64Unicode` to encode it.
 
