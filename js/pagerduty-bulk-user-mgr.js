@@ -1,12 +1,9 @@
 const authTab = document.getElementById("auth");
 
 const navMap = {
-    // "integrations-button": "integrations",
     "users-export-button": "users-export",
     "users-import-button": "users-import",
     "users-edit-button": "users-edit",
-    // "incidents-button": "incidents",
-    // "trigger-button": "trigger"
     "auth-button": "auth"
 };
 
@@ -54,7 +51,7 @@ buttonList.map(buttonId => {
 
 const initPDJS = function() {
     const parsedToken = JSON.parse(localStorage.getItem("pd-token"));
-    return new PDJSobj({
+    return PagerDuty.api({
         token: parsedToken.access_token,
         tokenType: parsedToken.token_type,
         logging: true
@@ -88,37 +85,34 @@ const initLogoutButton = function() {
 // if not pd-token show the auth Tab
 const loadPage = function() {
     if (localStorage.getItem("pd-token")) {
-        const PDJS = initPDJS();
+        const pd = initPDJS();
         initLogoutButton();
 
-        // Get Current User
-        PDJS.api({
-            res: `users/me`,
-            type: `GET`,
-            success: function(data) {
-                document.getElementById("welcome").innerHTML = `
-                <div id="user-wrapper">
-                    <div id="pic">
-                        <img src="${data.user.avatar_url}" />
-                    </div>
-                    <div id="bio">
-                        <div class="bio-item">
-                            Name: ${data.user.name}
-                        </div>
-                        <div class="bio-item">
-                            Email: ${data.user.email}
-                        </div>
-                        <div class="bio-item">
-                            Role: ${data.user.role}
-                        </div>
-                        <div class="bio-item">
-                            Time Zone: ${data.user.time_zone}
-                        </div>
-                    </div>
-                </div>`;
-                showTab("index");
-            }
-        });
+		pd.get('/users/me',{})
+        .then(({data}) => {
+			document.getElementById("welcome").innerHTML = `
+			<div id="user-wrapper">
+			<div id="pic">
+			<img src="${data.user.avatar_url}" />
+			</div>
+			<div id="bio">
+			<div class="bio-item">
+			Name: ${data.user.name}
+			</div>
+			<div class="bio-item">
+			Email: ${data.user.email}
+			</div>
+			<div class="bio-item">
+			Role: ${data.user.role}
+			</div>
+			<div class="bio-item">
+			Time Zone: ${data.user.time_zone}
+			</div>
+			</div>
+			</div>`;
+			showTab("index");
+		})
+		.catch(console.error);
     } else {        
         showTab("auth");
         authCheckingPoll();
@@ -126,8 +120,6 @@ const loadPage = function() {
 }
 // initialize page
 loadPage();
-
-
 
 /**********************
  * USER IMPORT
@@ -147,22 +139,20 @@ const addUsers = function(userList) {
 				delete user[key];
 			}
 		}
-
 		const options = {
 			data: {
 				user: user
 			}
         }
-        PDJS.api({
-            res: `users`,
-            type: `POST`,
+        pd.post(`/users`,
+		{
             data: options.data,
-            success: function(data) {
+		})
+		.then(({data}) => {
                 outstanding--;
 				if (outstanding == 0) {
                     document.getElementById("busy").style.display = "none";
 				}
-            }
         });
 	});
 }
@@ -174,8 +164,6 @@ function isEmpty(obj) {
     }
     return true;
 }
-
-
 
 // User Import Form
 document.getElementById('csv-file-input').onchange = function() {
@@ -310,27 +298,24 @@ const populateUsersResult = function() {
         "include[]": "contact_methods",
         "total": "true"
     };
-    const PDJS = initPDJS();
+    const pd = initPDJS();
 
-    PDJS.api_all({
-        res: "users",
-        data: {
-        "include[]":["contact_methods"]
-        },
-        incremental_success: function(data) {
-        	document.getElementById("busy").style.display = "block";
-        },
-        final_success: function(data) {
-            processUsers(data.users);
+    pd.get(`/users`,
+	{
+		params: {
+        	'include[]': `contact_methods`
         }
-    });
+	})
+	.then(({data}) => {
+		processUsers(data.users);
+	})
 }
 
 /**********************
  * USER EDIT RESULT
  **********************/
 function modifyUser(userId, field, value) {
-	const PDJS = initPDJS();
+	const pd = initPDJS();
 	let options = {
 		data: {
 			user: {}
@@ -338,23 +323,20 @@ function modifyUser(userId, field, value) {
 	};
 	options.data.user[field] = value;
 	
-	PDJS.api({
-		res: `users/${userId}`,
-		type: 'PUT',
-		data: options.data,
-		success: function (data) {
-
-		},
-		error: function (data) {
-			alert("Failed to edit " + field + ": " + data.responseJSON.error.message + "\n\n" + data.responseJSON.error.errors.join("\n"));
-			populateUsersEdit();
-		}
-	  });
+	pd.put(`users/${userId}`,
+	{
+		data: options.data
+	})
+	.then()
+	.catch(({data}) => {
+		alert("Failed to edit " + field + ": " + data.responseJSON.error.message + "\n\n" + data.responseJSON.error.errors.join("\n"));
+		populateUsersEdit();
+	});
 }
 
 
 function processUsersEdit(tableData, data) {
-	const PDJS = initPDJS();
+	const pd = initPDJS();
 
 	data.users.forEach(function(user) {
 		var methods = {
@@ -415,21 +397,18 @@ function processUsersEdit(tableData, data) {
 			success: function(data) { processUsersEdit(tableData, data); }
 		}
 	
-		PDJS.api_all({
-			res: "users",
-			method: "GET",
+		pd.get(`/users`,
+		{
 			data: {
 				"include[]":["contact_methods"],
 				"total": "true",
 				"offset": offset
-			},
-			// incremental_success: function(data) {
-			// 	// document.getElementById("busy").style.display = "block";
-			// },
-			final_success: function(data) {
-				processUsersEdit(tableData, data);
 			}
-		});
+		})
+		.then(({data}) => {
+			processUsersEdit(tableData, data);
+		})
+		.catch(console.error)
 	} else {
 		$('#users-edit-result-table').DataTable({
 			data: tableData,
@@ -485,24 +464,18 @@ function populateUsersEdit() {
 		},
 		success: function(data) { processUsersEdit(tableData, data); }
 	}
-    const PDJS = initPDJS();
+    const pd = initPDJS();
 	
-	PDJS.api_all({
-        res: "users",
-        data: {
+	pd.get(`users`,
+	{
+        params: {
             "include[]":["contact_methods"],
             "total": "true"
-        },
-        incremental_success: function(data) {
-        	document.getElementById("busy").style.display = "block";
-        },
-        final_success: function(data) {
-			processUsersEdit(tableData, data);
-			document.getElementById("busy").style.display = "none";
         }
-    });
+	})
+	.then(({data}) => {
+		processUsersEdit(tableData, data);
+		document.getElementById("busy").style.display = "none";
+	})
+	.catch(console.error)
 }
-
-
-
-
