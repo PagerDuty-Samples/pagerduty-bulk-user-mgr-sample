@@ -1,5 +1,5 @@
 const urlParams = new URLSearchParams(window.location.search);
-let PDJS = {};
+let pd = {};
 
 if (urlParams.get('code')) {
     // post to /token to request token
@@ -13,7 +13,7 @@ if (urlParams.get('code')) {
         .then(data => {
             if (data.access_token) {
                 localStorage.setItem("pd-token", (JSON.stringify(data)));
-                PDJS = new PDJSobj({
+                pd = new PagerDuty.api({
                     token: data.access_token,
                     tokenType: data.token_type,
                     logging: true

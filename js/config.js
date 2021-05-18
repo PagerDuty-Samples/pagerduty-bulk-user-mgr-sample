@@ -1,4 +1,4 @@
 const APP_CONFIG = {
-    redirectUrl: `https://pagerduty-samples.github.io/pagerduty-bulk-user-mgr-sample/`,
-    clientId: `37e14ac7da1930c2612f9b41ee69eea40087e317f020eb2b9336f4843c59927e`
+    redirectUrl: `https://9382dcee8f6f.ngrok.io`,
+    clientId: `30fd28a095c211eed9b0d4ea1fb1a3b24daf23a16d43beaefbcc1177f6679224`
 };

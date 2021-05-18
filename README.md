@@ -1,6 +1,6 @@
 # PagerDuty Bulk User Management Tool
 
-This is a standalone tool, suitable for use as a PD add-on to import, export and edit users. The code for this project showcases [PKCE OAuth](https://v2.developer.pagerduty.com/docs/oauth-2-functionality-pkce) as well as the [users](https://api-reference.pagerduty.com/#!/Users/get_users) endpoint of the PagerDuty API.
+This is a standalone tool, suitable for use as a PD add-on to import, export and edit users. The code for this project showcases [PKCE OAuth](https://v2.developer.pagerduty.com/docs/oauth-2-functionality-pkce) as well as the [users](https://developer.pagerduty.com/api-reference/reference/REST/openapiv3.json/paths/~1users/get) endpoint of the PagerDuty API.
 
 ## How to use
 A live version of the tool is running [here](https://pagerduty-samples.github.io/pagerduty-bulk-user-mgr-sample/).
