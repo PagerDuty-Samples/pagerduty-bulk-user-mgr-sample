@@ -300,7 +300,7 @@ const populateUsersResult = function() {
     };
     const pd = initPDJS();
 
-    pd.get(`/users`,
+    pd.all(`/users`,
 	{
 		params: {
         	'include[]': `contact_methods`
