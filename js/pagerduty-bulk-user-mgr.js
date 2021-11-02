@@ -219,51 +219,53 @@ document.getElementById('csv-file-input').onchange = function() {
 /**********************
  * USER EXPORT
  **********************/
-const processUsers = function(users) {
+const processUsers = function(userArrays) {
 	let tableData = [];
-	users.forEach(function(user) {
-		let methods = {
-			phone: [],
-			email: [],
-			sms: [],
-			push: []
-		}
-		
-		user.contact_methods.forEach(function(method) {
-			switch (method.type) {
-				case "email_contact_method":
-					methods.email.push(method.address);
-					break;
-				case "phone_contact_method":
-					methods.phone.push(method.address);
-					break;
-				case "push_notification_contact_method":
-					methods.push.push(method.address);
-					break;
-				case "sms_contact_method":
-					methods.sms.push(method.address);
-					break;
+	userArrays.forEach(function(array) {
+		array.users.map((user) => {
+			let methods = {
+				phone: [],
+				email: [],
+				sms: [],
+				push: []
 			}
-		});
-		
-		let teams = [];
-		user.teams.forEach(function(team) {
-			teams.push(team.summary);
-		});
-		
-		tableData.push(
-			[
-				user.id,
-				user.name,
-				user.email,
-				user.job_title,
-				user.role,
-				teams.join(),
-				methods.email.join(),
-				methods.phone.join(),
-				methods.sms.join()
-			]
-		);
+			
+			user.contact_methods.forEach(function(method) {
+				switch (method.type) {
+					case "email_contact_method":
+						methods.email.push(method.address);
+						break;
+					case "phone_contact_method":
+						methods.phone.push(method.address);
+						break;
+					case "push_notification_contact_method":
+						methods.push.push(method.address);
+						break;
+					case "sms_contact_method":
+						methods.sms.push(method.address);
+						break;
+				}
+			});
+			
+			let teams = [];
+			user.teams.forEach(function(team) {
+				teams.push(team.summary);
+			});
+			
+			tableData.push(
+				[
+					user.id,
+					user.name,
+					user.email,
+					user.job_title,
+					user.role,
+					teams.join(),
+					methods.email.join(),
+					methods.phone.join(),
+					methods.sms.join()
+				]
+			);
+		})
 	});
 
 	$('#users-export-result-table').DataTable({
@@ -300,14 +302,15 @@ const populateUsersResult = function() {
     };
     const pd = initPDJS();
 
-    pd.get(`/users`,
+    pd.all(`/users`,
 	{
 		params: {
         	'include[]': `contact_methods`
         }
 	})
 	.then(({data}) => {
-		processUsers(data.users);
+		console.log(data);
+		processUsers(data);
 	})
 }
 
@@ -338,116 +341,90 @@ function modifyUser(userId, field, value) {
 function processUsersEdit(tableData, data) {
 	const pd = initPDJS();
 
-	data.users.forEach(function(user) {
-		var methods = {
-			phone: [],
-			email: [],
-			sms: [],
-			push: []
-		}
-		
-		user.contact_methods.forEach(function(method) {
-			switch (method.type) {
-				case "email_contact_method":
-					methods.email.push(method.address);
-					break;
-				case "phone_contact_method":
-					methods.phone.push(method.address);
-					break;
-				case "push_notification_contact_method":
-					methods.push.push(method.address);
-					break;
-				case "sms_contact_method":
-					methods.sms.push(method.address);
-					break;
+	data.forEach(function(array) {
+		array.users.map((user) => {
+
+			var methods = {
+				phone: [],
+				email: [],
+				sms: [],
+				push: []
 			}
+			
+			user.contact_methods.forEach(function(method) {
+				switch (method.type) {
+					case "email_contact_method":
+						methods.email.push(method.address);
+						break;
+					case "phone_contact_method":
+						methods.phone.push(method.address);
+						break;
+					case "push_notification_contact_method":
+						methods.push.push(method.address);
+						break;
+					case "sms_contact_method":
+						methods.sms.push(method.address);
+						break;
+				}
+			});
+							
+			var teams = [];
+			user.teams.forEach(function(team) {
+				teams.push(team.summary);
+			});
+							
+			tableData.push(
+				[
+					user.id,
+					user.name,
+					user.email,
+					user.job_title,
+					user.role,
+					user.time_zone,
+					user.color,
+					user.description
+				]
+			);
 		});
-		
-		var teams = [];
-		user.teams.forEach(function(team) {
-			teams.push(team.summary);
-		});
-		
-		tableData.push(
-			[
-				user.id,
-				user.name,
-				user.email,
-				user.job_title,
-				user.role,
-				user.time_zone,
-				user.color,
-				user.description
-			]
-		);
 	});
-	if ( data.more == true ) {
-		const offset = data.offset + data.limit;
-		let progress = Math.round((data.offset / data.total) * 100);
-		$('#progressbar').attr("aria-valuenow", "" + progress);
-		$('#progressbar').attr("style", "width: " + progress + "%;");
-		$('#progressbar').html("" + progress + "%");
-		
-		const options = {
-			data: {
-				"include[]": ["contact_methods"],
-				"offset": offset,
-				"total": "true"
-			},
-			success: function(data) { processUsersEdit(tableData, data); }
+	$('#users-edit-result-table').DataTable({
+		data: tableData,
+		columns: [
+			{ title: "ID" },
+			{ title: "User Name" },
+			{ title: "Login"},
+			{ title: "Title"},
+			{ title: "PD Role"},
+			{ title: "Time Zone"},
+			{ title: "Color" },
+			{ title: "Description" }
+		],
+		fnDrawCallback: function() {
+			$('#users-edit-result-table').Tabledit({
+				url: '',
+				onAlways: function(action, serialize) {
+					var pairs = serialize.split('&');
+					var id = pairs[0].split('=')[1];
+					var field = pairs[1].split('=')[0];
+					var value = decodeURIComponent(pairs[1].split('=')[1]);
+					modifyUser(id, field, value);
+				},
+				editButton: false,
+				deleteButton: false,
+				hideIdentifier: true,
+				columns: {
+					identifier: [0, 'id'],
+					editable: [[1, 'name'], [2, 'email'], [3, 'job_title'], [4, 'role'], [5, 'time_zone'], [6, 'color'], [7, 'description']]
+				}
+			});
 		}
-	
-		pd.get(`/users`,
-		{
-			params: {
-				"include[]":["contact_methods"],
-				"total": "true",
-				"offset": offset
-			}
-		})
-		.then(({data}) => {
-			processUsersEdit(tableData, data);
-		})
-		.catch(console.error)
-	} else {
-		$('#users-edit-result-table').DataTable({
-			data: tableData,
-			columns: [
-				{ title: "ID" },
-				{ title: "User Name" },
-				{ title: "Login"},
-				{ title: "Title"},
-				{ title: "PD Role"},
-				{ title: "Time Zone"},
-				{ title: "Color" },
-				{ title: "Description" }
-			],
-			fnDrawCallback: function() {
-				$('#users-edit-result-table').Tabledit({
-				    url: '',
-				    onAlways: function(action, serialize) {
-					    var pairs = serialize.split('&');
-					    var id = pairs[0].split('=')[1];
-					    var field = pairs[1].split('=')[0];
-					    var value = decodeURIComponent(pairs[1].split('=')[1]);
-					    modifyUser(id, field, value);
-				    },
-				    editButton: false,
-				    deleteButton: false,
-				    hideIdentifier: true,
-				    columns: {
-				        identifier: [0, 'id'],
-				        editable: [[1, 'name'], [2, 'email'], [3, 'job_title'], [4, 'role'], [5, 'time_zone'], [6, 'color'], [7, 'description']]
-				    }
-				});
-    		}
-		});
-		$('.busy').hide();
-		$('#progressbar').attr("aria-valuenow", "0");
-		$('#progressbar').attr("style", "width: 0%;");
-		$('#progressbar').html("0%");
-	}
+	});
+	$('.busy').hide();
+	$('#progressbar').attr("aria-valuenow", "0");
+	$('#progressbar').attr("style", "width: 0%;");
+	$('#progressbar').html("0%");
 }
+// }
 
 function populateUsersEdit() {
 	document.getElementById("busy").style.display = "block";
@@ -460,17 +437,17 @@ function populateUsersEdit() {
 	let options = {
 		data: {
 			"include[]": ["contact_methods"],
-			"total": "true"
 		},
-		success: function(data) { processUsersEdit(tableData, data); }
+		success: function(data) { 
+			processUsersEdit(tableData, data); 
+		}
 	}
     const pd = initPDJS();
 	
-	pd.get(`users`,
+	pd.all(`users`,
 	{
         params: {
-            "include[]":["contact_methods"],
-            "total": "true"
+            "include[]":["contact_methods"]
         }
 	})
 	.then(({data}) => {
