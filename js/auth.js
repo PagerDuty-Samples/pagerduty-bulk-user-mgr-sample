@@ -32,9 +32,15 @@ if (urlParams.get('code')) {
     }
 } else {
     function gen128x8bitNonce() {
-        const array = new Uint8Array(128); //( generate 1024bits 8*128
-        window.crypto.getRandomValues(array);
-        return array;
+         // account for the overhead of going to base64
+         var bytes = Math.floor(128  / 1.37);  
+         var array = new Uint8Array(bytes); //
+         // note: there was a bug where getRandomValues was assumed
+         // to modify the reference to the array and not return
+         // a value
+         array = window.crypto.getRandomValues(array);
+         return base64Unicode(array.buffer);
+
     };
     // hash verifier
     async function digestVerifier(vString) {
@@ -101,9 +107,7 @@ if (urlParams.get('code')) {
     
     async function auth() {
         // generate code verifier
-        const generatedCode = gen128x8bitNonce();
-        // base64 encode code_verifier
-        const codeVerifier = base64Unicode(generatedCode.buffer);        
+        const codeVerifier = gen128x8bitNonce();
         // save code_verifier
         sessionStorage.setItem('code_verifier', codeVerifier);
         // generate the challenge from the code verifier
