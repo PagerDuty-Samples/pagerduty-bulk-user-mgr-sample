@@ -3,13 +3,15 @@ let pd = {};
 
 if (urlParams.get('code')) {
     // post to /token to request token
-    let requestTokenUrl = `https://app.pagerduty.com/oauth/token?` + 
-                            `grant_type=authorization_code&` + 
-                            `code=${urlParams.get('code')}&` +
-                            `redirect_uri=${APP_CONFIG.redirectUrl}&` + 
-                            `client_id=${APP_CONFIG.clientId}&` + 
-                            `code_verifier=${sessionStorage.getItem('code_verifier')}`;
-    postData(requestTokenUrl, {})
+    let requestTokenUrl = 'https://app.pagerduty.com/oauth/token';
+    let params = {
+        grant_type: 'authorization_code',
+        code: urlParams.get('code'),
+        redirect_uri: APP_CONFIG.redirectUrl,
+        client_id: APP_CONFIG.clientId,
+        code_verifier: sessionStorage.getItem('code_verifier')
+    };
+    postData(requestTokenUrl, params)
         .then(data => {
             if (data.access_token) {
                 localStorage.setItem("pd-token", (JSON.stringify(data)));
