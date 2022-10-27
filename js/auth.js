@@ -4,13 +4,12 @@ let pd = {};
 if (urlParams.get('code')) {
     // post to /token to request token
     let requestTokenUrl = 'https://app.pagerduty.com/oauth/token';
-    let params = {
-        grant_type: 'authorization_code',
-        code: urlParams.get('code'),
-        redirect_uri: APP_CONFIG.redirectUrl,
-        client_id: APP_CONFIG.clientId,
-        code_verifier: sessionStorage.getItem('code_verifier')
-    };
+    let params = `grant_type=authorization_code&` +
+        `code=${urlParams.get('code')}&` +
+        `redirect_uri=${APP_CONFIG.redirectUrl}&` +
+        `client_id=${APP_CONFIG.clientId}&` +
+        `code_verifier=${sessionStorage.getItem('code_verifier')}`;
+
     postData(requestTokenUrl, params)
         .then(data => {
             if (data.access_token) {
@@ -28,20 +27,24 @@ if (urlParams.get('code')) {
 
     function postData(url, data) {
         return fetch(url, {
-            method: 'POST'
-        })
-        .then(response => response.json()); // parses JSON response into native JavaScript objects 
+                method: 'POST',
+                body: data,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            })
+            .then(response => response.json()); // parses JSON response into native JavaScript objects 
     }
 } else {
     function gen128x8bitNonce() {
-         // account for the overhead of going to base64
-         var bytes = Math.floor(128  / 1.37);  
-         var array = new Uint8Array(bytes); //
-         // note: there was a bug where getRandomValues was assumed
-         // to modify the reference to the array and not return
-         // a value
-         array = window.crypto.getRandomValues(array);
-         return base64Unicode(array.buffer);
+        // account for the overhead of going to base64
+        var bytes = Math.floor(128 / 1.37);
+        var array = new Uint8Array(bytes); //
+        // note: there was a bug where getRandomValues was assumed
+        // to modify the reference to the array and not return
+        // a value
+        array = window.crypto.getRandomValues(array);
+        return base64Unicode(array.buffer);
 
     };
     // hash verifier
@@ -99,30 +102,30 @@ if (urlParams.get('code')) {
                 sB64Enc :
                 sB64Enc.substring(0, sB64Enc.length - eqLen) + (eqLen === 1 ? "=" : "==");
         };
-        let encodedArr =  base64EncArr(new Uint8Array(buffer));
+        let encodedArr = base64EncArr(new Uint8Array(buffer));
         // manually finishing up the url encoding fo the encodedArr
         encodedArr = encodedArr.replace(/\+/g, '-')
-                    .replace(/\//g, '_')
-                    .replace(/=/g, '');
+            .replace(/\//g, '_')
+            .replace(/=/g, '');
         return encodedArr;
     }
-    
+
     async function auth() {
         // generate code verifier
         const codeVerifier = gen128x8bitNonce();
         // save code_verifier
         sessionStorage.setItem('code_verifier', codeVerifier);
         // generate the challenge from the code verifier
-        const challengeBuffer =  await digestVerifier(codeVerifier);
+        const challengeBuffer = await digestVerifier(codeVerifier);
         // base64 encode the challenge
-        const challenge = base64Unicode(challengeBuffer);        
+        const challenge = base64Unicode(challengeBuffer);
         // build authUrl
         const authUrl = `https://app.pagerduty.com/oauth/authorize?` +
-                            `client_id=${APP_CONFIG.clientId}&` +
-                            `redirect_uri=${APP_CONFIG.redirectUrl}&` + 
-                            `response_type=code&` +
-                            `code_challenge=${encodeURI(challenge)}&` + 
-                            `code_challenge_method=S256`;
+            `client_id=${APP_CONFIG.clientId}&` +
+            `redirect_uri=${APP_CONFIG.redirectUrl}&` +
+            `response_type=code&` +
+            `code_challenge=${encodeURI(challenge)}&` +
+            `code_challenge_method=S256`;
 
         document.getElementById("pd-auth-button").href = authUrl;
     }
