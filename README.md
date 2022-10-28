@@ -68,16 +68,18 @@ const authUrl = `https://app.pagerduty.com/oauth/authorize?` +
 
 
 #### Request Auth Token
-When PagerDuty returns the Authorization Code, it's time to request an Access Token. This is done by making a POST request to `https://app.pagerduty.com/oauth/token` as seen below. Notice, that we're now passing the original value of `code_verifier` that we generated earlier in the flow. This is done at the last step so that the server can gaurantee that otherwise state-less request is coming from the same client source--ensuring that the `authorization_code` sent from PagerDuty was not intercepted in the wild. The server will have stored the value for `code_challenge_method` from earlier and will use it along with `code_verifier` to validate the request.
+When PagerDuty returns the Authorization Code, it's time to request an Access Token. This is done by making a POST request to `https://app.pagerduty.com/oauth/token` as seen below. Notice, that we're now passing the original value of `code_verifier` that we generated earlier in the flow. This is done at the last step so that the server can guarantee the otherwise state-less request is coming from the same client source--ensuring the `authorization_code` sent from PagerDuty was not intercepted during the process. The PagerDuty server will have stored the value for `code_challenge_method` from earlier and will use it along with `code_verifier` to validate the request.
 
 ```javascript
-let requestTokenUrl = `https://app.pagerduty.com/oauth/token?` + 
-                    `grant_type=authorization_code&` + 
-                    `code=${urlParams.get('code')}&` +
-                    `redirect_uri=${APP_CONFIG.redirectUrl}&` + 
-                    `client_id=${APP_CONFIG.clientId}&` + 
-                    `code_verifier=${sessionStorage.getItem('code_verifier')}`;
+let requestTokenUrl = 'https://app.pagerduty.com/oauth/token';
+let params = `grant_type=authorization_code&` +
+    `code=${urlParams.get('code')}&` +
+    `redirect_uri=${APP_CONFIG.redirectUrl}&` +
+    `client_id=${APP_CONFIG.clientId}&` +
+    `code_verifier=${sessionStorage.getItem('code_verifier')}`;
 ```
+PagerDuty requires the `params` to be sent in the body of the request in a `x-form-urlencoded` format to match the required `Content-Type` set in the headers of the request. 
+
 The response to the token request will return an Access Token object  with the following format.
 
 ```json        
