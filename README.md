@@ -57,7 +57,7 @@ const challenge = base64Unicode(challengeBuffer);
 Using the `code_challenge` generated above, and the `client_id` and `redirect_uri` from your app's [OAuth Registration](https://v2.developer.pagerduty.com/docs/oauth-2-functionality) the `authUrl` is created below. A few key parameters to point out are the `response_type=code`, which tells PagerDuty to return an Authorization Code, and the `code_challenge_method=S256`. This tells PagerDuty by which method the challenge is hashed. In this case, SHA-256.
 
 ```javascript
-const authUrl = `https://app.pagerduty.com/oauth/authorize?` +
+const authUrl = `https://identity.pagerduty.com/oauth/authorize?` +
                     `client_id=${APP_CONFIG.clientId}&` +
                     `redirect_uri=${APP_CONFIG.redirectUrl}&` + 
                     `response_type=code&` +
@@ -68,10 +68,10 @@ const authUrl = `https://app.pagerduty.com/oauth/authorize?` +
 
 
 #### Request Auth Token
-When PagerDuty returns the Authorization Code, it's time to request an Access Token. This is done by making a POST request to `https://app.pagerduty.com/oauth/token` as seen below. Notice, that we're now passing the original value of `code_verifier` that we generated earlier in the flow. This is done at the last step so that the server can guarantee the otherwise state-less request is coming from the same client source--ensuring the `authorization_code` sent from PagerDuty was not intercepted during the process. The PagerDuty server will have stored the value for `code_challenge_method` from earlier and will use it along with `code_verifier` to validate the request.
+When PagerDuty returns the Authorization Code, it's time to request an Access Token. This is done by making a POST request to `https://identity.pagerduty.com/oauth/token` as seen below. Notice, that we're now passing the original value of `code_verifier` that we generated earlier in the flow. This is done at the last step so that the server can guarantee the otherwise state-less request is coming from the same client source--ensuring the `authorization_code` sent from PagerDuty was not intercepted during the process. The PagerDuty server will have stored the value for `code_challenge_method` from earlier and will use it along with `code_verifier` to validate the request.
 
 ```javascript
-let requestTokenUrl = 'https://app.pagerduty.com/oauth/token';
+let requestTokenUrl = 'https://identity.pagerduty.com/oauth/token';
 let params = `grant_type=authorization_code&` +
     `code=${urlParams.get('code')}&` +
     `redirect_uri=${APP_CONFIG.redirectUrl}&` +
