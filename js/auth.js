@@ -3,7 +3,7 @@ let pd = {};
 
 if (urlParams.get('code')) {
     // post to /token to request token
-    let requestTokenUrl = 'https://app.pagerduty.com/oauth/token';
+    let requestTokenUrl = 'https://identity.pagerduty.com/oauth/token';
     let params = `grant_type=authorization_code&` +
         `code=${urlParams.get('code')}&` +
         `redirect_uri=${APP_CONFIG.redirectUrl}&` +
@@ -120,7 +120,7 @@ if (urlParams.get('code')) {
         // base64 encode the challenge
         const challenge = base64Unicode(challengeBuffer);
         // build authUrl
-        const authUrl = `https://app.pagerduty.com/oauth/authorize?` +
+        const authUrl = `https://identity.pagerduty.com/oauth/authorize?` +
             `client_id=${APP_CONFIG.clientId}&` +
             `redirect_uri=${APP_CONFIG.redirectUrl}&` +
             `response_type=code&` +
